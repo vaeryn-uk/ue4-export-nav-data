@@ -1,3 +1,5 @@
+Forked from the great work done in https://github.com/hxhb/ue4-export-nav-data to support a hobby gamedev project.
+
 ## What is this?
 
 This is a Unreal Engine 4 Plugin that export ue4 navigation mesh data(recast mesh) to outside.
