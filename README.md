@@ -1,4 +1,4 @@
-Forked from the great work done in https://github.com/hxhb/ue4-export-nav-data to support a hobby gamedev project.
+Forked from the great work done in https://github.com/hxhb/ue4-export-nav-data for customisations/hacks to support a hobby gamedev project.
 
 ## What is this?
 
