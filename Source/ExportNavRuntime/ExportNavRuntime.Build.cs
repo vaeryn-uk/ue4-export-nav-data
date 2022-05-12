@@ -62,8 +62,8 @@ public class ExportNavRuntime : ModuleRules
                 {
                     "USE_DETOUR_BUILT_INTO_UE4",
 		    // Removed these as we don't need .obj exports and these can be very slow/hang the editor for larger navmeshes.
-                    //"EXPORT_NAV_MESH_AS_M",
-                    //"EXPORT_NAV_MESH_AS_CM",
+                    "EXPORT_NAV_MESH_AS_M=0",
+                    "EXPORT_NAV_MESH_AS_CM=0",
                 }
             );
 	}
