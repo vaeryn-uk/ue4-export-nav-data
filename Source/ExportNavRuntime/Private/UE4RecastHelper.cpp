@@ -44,7 +44,7 @@ bool UE4RecastHelper::dtIsValidNavigationPoint(dtNavMesh* InNavMeshData, const U
 	dtQueryFilter QueryFilter;
 
 #ifdef USE_DETOUR_BUILT_INTO_UE4
-	NavQuery.findNearestPoly2D(&RcPoint.X, &RcExtent.X, &QueryFilter, &PolyRef, (float*)(&ClosestPoint));
+	NavQuery.findNearestPoly2D(&RcPoint.X, &RcExtent.X, &QueryFilter, &PolyRef, (double*)(&ClosestPoint));
 	UE_LOG(LogTemp, Log, TEXT("dtIsValidNavigationPoint PolyRef is %ud."), PolyRef);
 #else
 	NavQuery.findNearestPoly(&RcPoint.X, &RcExtent.X, &QueryFilter, &PolyRef, (float*)(&ClosestPoint));
@@ -95,14 +95,14 @@ int UE4RecastHelper::findStraightPath(dtNavMesh* InNavMeshData, dtNavMeshQuery* 
 	dtQueryFilter QueryFilter;
 
 #ifdef USE_DETOUR_BUILT_INTO_UE4
-	NavQuery.findNearestPoly2D(&RcStart.X, &RcExtent.X, &QueryFilter, &StartPolyRef, (float*)(&StartClosestPoint));
+	NavQuery.findNearestPoly2D(&RcStart.X, &RcExtent.X, &QueryFilter, &StartPolyRef, (double*)(&StartClosestPoint));
 	// UE_LOG(LogTemp, Warning, TEXT("CALL findNearestPoly2D"));
 #else
 	NavQuery.findNearestPoly(&RcStart.X, &RcExtent.X, &QueryFilter, &StartPolyRef, (float*)(&StartClosestPoint));
 #endif
 
 #ifdef USE_DETOUR_BUILT_INTO_UE4
-	NavQuery.findNearestPoly2D(&RcEnd.X, &RcExtent.X, &QueryFilter, &EndPolyRef, (float*)(&EndClosestPoint));
+	NavQuery.findNearestPoly2D(&RcEnd.X, &RcExtent.X, &QueryFilter, &EndPolyRef, (double*)(&EndClosestPoint));
 	// UE_LOG(LogTemp, Warning, TEXT("CALL findNearestPoly2D"));
 #else
 	NavQuery.findNearestPoly(&RcEnd.X, &RcExtent.X, &QueryFilter, &EndPolyRef, (float*)(&EndClosestPoint));
@@ -118,11 +118,11 @@ int UE4RecastHelper::findStraightPath(dtNavMesh* InNavMeshData, dtNavMeshQuery* 
 
 	dtQueryResult Result;
 
-#if ENGINE_MINOR_VERSION < 24
+#if ENGINE_MINOR_VERSION < 24 && ENGINE_MAJOR_VERSION == 4
 	dtStatus FindPathStatus = NavQuery.findPath(StartPolyRef, EndPolyRef, (float*)(&StartClosestPoint), (float*)(&EndClosestPoint), &QueryFilter, Result, NULL);
 #else
 	const float CostLimit = FLT_MAX;
-	dtStatus FindPathStatus = NavQuery.findPath(StartPolyRef, EndPolyRef, (float*)(&StartClosestPoint), (float*)(&EndClosestPoint), CostLimit, &QueryFilter, Result, NULL);
+	dtStatus FindPathStatus = NavQuery.findPath(StartPolyRef, EndPolyRef, (double*)(&StartClosestPoint), (double*)(&EndClosestPoint), CostLimit, &QueryFilter, Result, NULL);
 #endif
 
 #ifdef USE_DETOUR_BUILT_INTO_UE4
@@ -147,7 +147,7 @@ bool UE4RecastHelper::GetRandomPointInRadius(dtNavMeshQuery* InNavmeshQuery, dtQ
 	FVector3 RcPoint = UE4RecastHelper::Unreal2RecastPoint(InOrigin);
 
 #ifdef USE_DETOUR_BUILT_INTO_UE4
-	InNavmeshQuery->findNearestPoly2D(&RcPoint.X, &InRedius.X, InQueryFilter, &OriginPolyRef, (float*)(&ClosestPoint));
+	InNavmeshQuery->findNearestPoly2D(&RcPoint.X, &InRedius.X, InQueryFilter, &OriginPolyRef, (double*)(&ClosestPoint));
 	// UE_LOG(LogTemp, Warning, TEXT("CALL findNearestPoly2D"));
 #else
 	NavQuery->findNearestPoly(&RcPoint.X, &InRedius.X, InQueryFilter, &OriginPolyRef, (float*)(&ClosestPoint));
@@ -268,13 +268,14 @@ dtNavMesh* UE4RecastHelper::DeSerializedtNavMesh(const char* path)
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
-		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		// TODO: not sure about this DT_ALLOC_PERM_NAVMESH, but want to get it compiling.
+		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM_NAVMESH);
 		if (!data) break;
 		std::memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
 		if (readLen != 1)
 		{
-			dtFree(data);
+			dtFree(data, DT_ALLOC_PERM_NAVMESH);
 			fclose(fp);
 			return 0;
 		}

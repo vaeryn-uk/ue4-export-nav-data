@@ -221,16 +221,16 @@ bool UFlibExportNavData::FindDetourPathByRecastAxis(dtNavMesh* InNavMesh, const 
 
 	NavQuery.init(InNavMesh, 1024);
 
-	float Extern[3]{ ExternSize.X,ExternSize.Y,ExternSize.Z };
+	double Extern[3]{ ExternSize.X,ExternSize.Y,ExternSize.Z };
 
-	float StartPoint[3]{ RcStart.X,RcStart.Y,RcStart.Z };
+	double StartPoint[3]{ RcStart.X,RcStart.Y,RcStart.Z };
 	dtPolyRef StartPolyRef;
-	float StartNarestPt[3]{ 0.f };
+	double StartNarestPt[3]{ 0.f };
 	dtStatus StartStatus = NavQuery.findNearestPoly(StartPoint, Extern, &QueryFilter, &StartPolyRef, StartNarestPt);
 
-	float EndPoint[3]{ RcEnd.X,RcEnd.Y,RcEnd.Z };
+	double EndPoint[3]{ RcEnd.X,RcEnd.Y,RcEnd.Z };
 	dtPolyRef EndPolyRef;
-	float EndNarestPt[3]{ 0.f };
+	double EndNarestPt[3]{ 0.f };
 	dtStatus EndStatus = NavQuery.findNearestPoly(EndPoint, Extern, &QueryFilter, &EndPolyRef, EndNarestPt);
 
 	UE_LOG(LogTemp, Log, TEXT("Start Point FindNearestPoly status is %u,PolyRef is %u."), StartStatus, StartPolyRef);
@@ -245,9 +245,9 @@ bool UFlibExportNavData::FindDetourPathByRecastAxis(dtNavMesh* InNavMesh, const 
 	}
 
 	dtQueryResult result;
-	float totalcost[1024 * 3];
+	double totalcost[1024 * 3];
 
-#if	ENGINE_MINOR_VERSION < 24
+#if	ENGINE_MINOR_VERSION < 24 && ENGINE_MAJOR_VERSION == 4
 	dtStatus FindPathStatus = NavQuery.findPath(StartPolyRef, EndPolyRef, StartNarestPt, EndNarestPt, &QueryFilter, result, totalcost);
 #else
 	const float CostLimit = FLT_MAX;
@@ -267,7 +267,7 @@ bool UFlibExportNavData::FindDetourPathByRecastAxis(dtNavMesh* InNavMesh, const 
 	{
 		UE_LOG(LogTemp, Log, TEXT("Find Path index is %d ref is %u."), index, result.getRef(index));
 		path.push_back(result.getRef(index));
-		float currentpos[3]{ 0.f };
+		double currentpos[3]{ 0.f };
 		result.getPos(index, currentpos);
 		UE_LOG(LogTemp, Log, TEXT("Find Path index is %d pos is %s."), index, *UFlibExportNavData::Recast2UnrealPoint(FVector(currentpos[0], currentpos[1], currentpos[2])).ToString());
 		// OutPaths.Add(UFlibExportNavData::Recast2UnrealPoint(FVector(currentpos[0], currentpos[1], currentpos[2])));
@@ -279,7 +279,7 @@ bool UFlibExportNavData::FindDetourPathByRecastAxis(dtNavMesh* InNavMesh, const 
 	UE_LOG(LogTemp, Log, TEXT("findStraightPath size is %u."), findStraightPathResult.size());
 	for (int index = 0; index < findStraightPathResult.size(); ++index)
 	{
-		float currentpos[3]{ 0.f };
+		double currentpos[3]{ 0.f };
 		findStraightPathResult.getPos(index, currentpos);
 		UE_LOG(LogTemp, Log, TEXT("findStraightPath index is %d ref is %u."), index, findStraightPathResult.getRef(index));
 		UE_LOG(LogTemp, Log, TEXT("findStraightPath index is %d pos is %s."), index, *UFlibExportNavData::Recast2UnrealPoint(FVector(currentpos[0], currentpos[1], currentpos[2])).ToString());

@@ -31,9 +31,9 @@ namespace UE4RecastHelper
 
 	struct FVector3
 	{
-		float X;
-		float Y;
-		float Z;
+		double X;
+		double Y;
+		double Z;
 	public:
 		inline FVector3() :X(0.f), Y(0.f), Z(0.f) {}
 		inline FVector3(float* InV) : X(InV[0]), Y(InV[1]), Z(InV[2]) {}
